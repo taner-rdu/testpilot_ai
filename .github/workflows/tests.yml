@@ -1,7 +1,6 @@
 name: UI tests
 
 on:
-  push:
   pull_request:
 
 jobs:

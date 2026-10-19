@@ -23,7 +23,7 @@ browser through the [Playwright MCP](https://github.com/microsoft/playwright-mcp
 Three tests were broken on purpose with small typos. The agent's draft PR repaired all
 three:
 
-![AI fix diff showing three repaired tests](docs/ai-fix-example.webp)
+![AI fix diff showing three repaired tests](assets/ai-fix-example.png)
 
 | Test | Broken | Agent's fix |
 |---|---|---|

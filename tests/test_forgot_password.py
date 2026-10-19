@@ -4,7 +4,7 @@ from playwright.sync_api import Page, expect
 def test_forgot_password_sends_reset_email(page: Page):
     page.goto("/forgot-password")
 
-    page.locator("#emaail").fill("user@example.com")
+    page.locator("#email").fill("user@example.com")
     page.get_by_role("button", name="Retrieve password").click()
 
     expect(page.get_by_text("Password reset", exact=True)).to_be_visible()

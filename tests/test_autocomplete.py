@@ -4,7 +4,7 @@ from playwright.sync_api import Page, expect
 def test_autocomplete_country_selection(page: Page):
     page.goto("/autocomplete")
 
-    page.locator("#city").fill("Uni")
+    page.locator("#country").fill("Uni")
     suggestions = page.locator("#countryautocomplete-list div")
     expect(suggestions).to_have_count(3)
 

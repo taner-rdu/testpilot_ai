@@ -68,6 +68,7 @@ jobs:
           claude_args: >-
             --mcp-config .github/ai/mcp.json
             --allowedTools "Read,Edit,Write,Glob,Grep,Bash(uv run pytest:*),Bash(git diff:*),mcp__playwright__*"
+            --model claude-haiku-5-5
             --max-turns 30
           prompt: "Read .github/ai/investigate.md and follow its instructions exactly."
 

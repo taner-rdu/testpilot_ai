@@ -38,12 +38,51 @@ jobs:
 
   ai-investigation:
     needs: playwright
-    if: failure()
+    if: failure() && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PR_BRANCH: ${{ github.head_ref }}
+      FIX_BRANCH: ai-fix/${{ github.head_ref }}
     steps:
-      - name: AI investigation (placeholder)
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run playwright install --with-deps chromium
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: test-report
+          path: failure-report/
+
+      - name: AI investigates and fixes
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: >-
+            --mcp-config .github/ai/mcp.json
+            --allowedTools "Read,Edit,Write,Glob,Grep,Bash(uv run pytest:*),Bash(git diff:*),mcp__playwright__*"
+            --max-turns 30
+          prompt: "Read .github/ai/investigate.md and follow its instructions exactly."
+
+      - name: Open draft PR with the fix
         run: |
-          cat >> "$GITHUB_STEP_SUMMARY" <<'MSG'
-          ## 🤖 AI investigation
-          Tests failed. The AI agent step is not implemented yet.
-          MSG
+          if git diff --quiet; then
+            echo "Agent made no changes." | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name "testpilot-ai[bot]"
+          git config user.email "testpilot-ai@users.noreply.github.com"
+          git checkout -b "$FIX_BRANCH"
+          git add -- tests/
+          git commit -m "AI fix: repair failing UI tests"
+          git push --force origin "$FIX_BRANCH"
+          gh pr create --draft --base "$PR_BRANCH" --head "$FIX_BRANCH" \
+            --title "🤖 AI fix for failing tests on $PR_BRANCH" \
+            --body-file ai-explanation.md
+          echo "Draft PR opened for human review." >> "$GITHUB_STEP_SUMMARY"

@@ -9,6 +9,6 @@ def test_autocomplete_country_selection(page: Page):
     expect(suggestions).to_have_count(3)
 
     suggestions.filter(has_text="United Kingdom").click()
-    page.get_by_role("button", name="Send").click()
+    page.get_by_role("button", name="Submit").click()
 
     expect(page.locator("#result")).to_have_text("You selected: United Kingdom")

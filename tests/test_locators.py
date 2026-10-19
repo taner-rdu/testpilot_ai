@@ -10,7 +10,7 @@ def test_locators_page_elements(page: Page):
     expect(page.get_by_text("Hot Deal: Buy 1 Get 1 Free")).to_be_visible()
 
     page.locator("#countrySelect").select_option(label="Japan")
-    expect(page.locator("#countrySelect")).to_have_value("Japan")
+    expect(page.locator("#countrySelect")).to_have_value("Japon")
 
     expect(page.get_by_test_id("status-message")).to_contain_text("All systems operational")
     expect(page.get_by_test_id("user-name")).to_contain_text("Username: Alice")

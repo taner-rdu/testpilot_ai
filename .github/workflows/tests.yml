@@ -12,9 +12,38 @@ jobs:
       - uses: astral-sh/setup-uv@v5
       - run: uv sync
       - run: uv run playwright install --with-deps chromium
-      - run: uv run pytest
-      - uses: actions/upload-artifact@v4
-        if: failure()
+
+      - name: Run tests
+        run: >
+          uv run pytest
+          --junitxml=reports/junit.xml
+          --html=reports/report.html --self-contained-html
+          --tracing=retain-on-failure
+          --screenshot=only-on-failure
+          --output=test-results
+
+      - name: Publish summary
+        if: always()
+        run: uv run python scripts/summary.py reports/junit.xml >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: test-results
-          path: test-results/
+          name: test-report
+          path: |
+            reports/
+            test-results/
+          if-no-files-found: ignore
+
+  ai-investigation:
+    needs: playwright
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: AI investigation (placeholder)
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'MSG'
+          ## 🤖 AI investigation
+          Tests failed. The AI agent step is not implemented yet.
+          MSG
